@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model acast {
+  id                   Int          @id
+  adult                Boolean?     @default(true)
+  gender               Int?         @default(0)
+  known_for_department String?
+  name                 String?
+  original_name        String?
+  popularity           Decimal?     @default(0) @db.Decimal
+  profile_path         String?
+  movie_cast           movie_cast[]
+}
+
+model genres {
+  id           Int            @id
+  name         String
+  movie_genres movie_genres[]
+}
+
+model movie_cast {
+  movie_id    Int
+  cast_id     Int
+  cast_order  Int?    @default(0)
+  character   String?
+  credit_id   String?
+  cast_ref_id Int?    @default(0)
+  acast       acast   @relation(fields: [cast_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  movies      movies  @relation(fields: [movie_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([movie_id, cast_id])
+}
+
+model movie_genres {
+  movie_id Int
+  genre_id Int
+  genres   genres @relation(fields: [genre_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  movies   movies @relation(fields: [movie_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([movie_id, genre_id])
+}
+
+model movies {
+  id                Int            @id
+  adult             Boolean?       @default(true)
+  backdrop_path     String?
+  genre_ids         Int[]
+  original_language String?
+  original_title    String?
+  overview          String?
+  popularity        Decimal?       @default(0) @db.Decimal
+  poster_path       String?
+  release_date      String?
+  title             String?
+  video             Boolean?       @default(true)
+  vote_average      Decimal?       @default(0) @db.Decimal
+  vote_count        Int?           @default(0)
+  movie_cast        movie_cast[]
+  movie_genres      movie_genres[]
+}
